@@ -115,3 +115,12 @@ class SoleItem(GameItem):
 
     def get_select_sql(self):
         return "select id from sole where id=%s"
+
+
+# 安利墙
+class AmwayItem(GameItem):
+    def get_insert_sql(self):
+        return "insert into amway(id,name,author,rating,tags,category) Values (%s,%s,%s,%s,%s,%s)"
+
+    def get_select_sql(self):
+        return "select id from amway where id=%s"

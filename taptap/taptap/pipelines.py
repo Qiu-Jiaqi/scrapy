@@ -8,7 +8,7 @@
 
 
 import pymysql
-import copy
+from taptap.items import GameItem
 from twisted.enterprise import adbapi
 
 
@@ -37,21 +37,23 @@ class TaptapPipeline(object):
     def process_item(self, item, spider):
         # 使用twisted将MySQL插入变成异步执行。通过连接池执行具体的sql操作，返回一个对象
         # 指定操作方法和操作数据
-        asynItem = copy.deepcopy(item)
-        query = self.db_pool.runInteraction(self.do_insert, asynItem)
+        query = self.db_pool.runInteraction(self.do_insert, item)
         # 添加异常处理
         query.addErrback(self.handle_error)
 
     # 对数据库进行插入操作，并不需要commit，twisted会自动commit
-    def do_insert(self, cursor, asynItem):
-        item = copy.deepcopy(asynItem)
+    def do_insert(self, cursor, item):
+        # 去掉丢失的数据
+        for key in item.keys():
+            if item[key] == '':
+                return
         flag = cursor.execute(item.get_select_sql(), item.get_primary())
         if flag:
             pass
         else:
             cursor.execute(item.get_insert_sql(), item.get_params())
 
-        # 插入allgame表
+        # 插入 allgame 表
         gameItem = item.get_game()
         flag = cursor.execute(gameItem.get_select_sql(), gameItem.get_primary())
         if flag:

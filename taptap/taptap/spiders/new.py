@@ -28,23 +28,18 @@ class NewSpider(scrapy.Spider):
         item = response.meta['item']
         item['id'] = response.url.split('/')[-1]
         item['name'] = response.xpath(
-            '//*[@id="js-nav-sidebar-main"]/div[1]/div/div/section[1]/div[1]/div[2]/div[1]/h1/text()'). \
-            extract()[0].strip()
+            '//*[@id="js-nav-sidebar-main"]/div[1]/div/div/section[1]/div[1]/div[2]/div[1]/h1/text()').extract_first().strip()
         item['author'] = response.xpath(
-            '//*[@id="js-nav-sidebar-main"]/div[1]/div/div/section[1]/div[1]/div[2]/div[1]/div/a/span[2]/text()'). \
-            extract()[0].strip()
+            '//*[@id="js-nav-sidebar-main"]/div[1]/div/div/section[1]/div[1]/div[2]/div[1]/div/a/span[2]/text()').extract_first().strip()
         rating = response.xpath(
             '//*[@id="js-nav-sidebar-main"]/div[1]/div/div/section[1]/div[1]/div[2]/div[1]/span/span/span/text()')
         if rating:
-            item['rating'] = rating.extract()[0]
+            item['rating'] = rating.extract_first()
         else:
             item['rating'] = "评分过少"
-        tags = []
-        for sel in response.xpath('//*[@id="appTag"]/li'):
-            tag = sel.xpath('a/text()')
-            if tag:
-                tags.append(tag.extract()[0].strip())
-        item['tags'] = ",".join(tags)
+        tags = response.css('#appTag > li > a::text').extract()
+        tags = list(map(str.strip, tags))
+        item['tags'] = ','.join(tags)
         item['category'] = \
-            response.xpath('//*[@id="js-nav-sidebar-main"]/section[1]/div/div/ol/li[3]/a/text()').extract()[0]
+            response.xpath('//*[@id="js-nav-sidebar-main"]/section[1]/div/div/ol/li[3]/a/text()').extract_first()
         yield item
