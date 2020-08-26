@@ -43,7 +43,8 @@ class TaptapPipeline(object):
         query.addErrback(self.handle_error)
 
     # 对数据库进行插入操作，并不需要commit，twisted会自动commit
-    def do_insert(self, cursor, item):
+    def do_insert(self, cursor, asynItem):
+        item = copy.deepcopy(asynItem)
         flag = cursor.execute(item.get_select_sql(), item.get_primary())
         if flag:
             pass

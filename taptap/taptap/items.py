@@ -106,3 +106,12 @@ class RecommendItem(GameItem):
 
     def get_select_sql(self):
         return "select id from recommend where id=%s"
+
+
+# taptap独家
+class SoleItem(GameItem):
+    def get_insert_sql(self):
+        return "insert into sole(id,name,author,rating,tags,category) Values (%s,%s,%s,%s,%s,%s)"
+
+    def get_select_sql(self):
+        return "select id from sole where id=%s"
