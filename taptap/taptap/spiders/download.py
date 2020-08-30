@@ -43,4 +43,16 @@ class DownloadSpider(scrapy.Spider):
         item['tags'] = ','.join(tags)
         item['category'] = \
             response.xpath('//*[@id="js-nav-sidebar-main"]/section[1]/div/div/ol/li[3]/a/text()').extract_first()
+        flag = response.css(
+            '#js-nav-sidebar-main > div.container.app-main-container > div > div > section.app-show-main.taptap-page-main > div.show-main-header > div.main-header-text > div.header-text-download > div.text-download-text p > span::text') \
+            .extract()
+        if len(flag) == 2:
+            item['install_num'] = flag[0].split(' ')[0]
+            item['follow_num'] = flag[1].split(' ')[0]
+        elif len(flag) == 1:
+            item['install_num'] = 0
+            item['follow_num'] = flag[0].split(' ')[0]
+        else:
+            item['install_num'] = 0
+            item['follow_num'] = 0
         yield item

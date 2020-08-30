@@ -9,7 +9,7 @@ from taptap.items import PlayedItem
 from bs4 import BeautifulSoup
 
 
-# 排行榜五个，暂时没用
+# 排行榜五个，没用,有问题
 # 合在一起使用parse_detail的方法会数据丢失，找不到原因，尝试过深拷贝，解决不了，该类拆分成了五个类。
 # 使用未注释的方法仅获取三个tag
 class RatingSpider(scrapy.Spider):

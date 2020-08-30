@@ -1,32 +1,29 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import json
-from taptap.items import NewItem
+from taptap.items import SimulationItem
 from bs4 import BeautifulSoup
 
 
-# 新品榜
-class NewSpider(scrapy.Spider):
-    name = 'new'
+# 模拟游戏
+class SimulationSpider(scrapy.Spider):
+    name = 'simulation'
     allowed_domains = ['www.taptap.com']
-    start_urls = ['https://www.taptap.com/ajax/top/new?total=0&page=1']
+    start_urls = ['https://www.taptap.com/ajax/search/tags?&kw=%E6%A8%A1%E6%8B%9F&sort=hits&page=1']
 
     def parse(self, response):
         print(response.url)
         datas = json.loads(response.body)
         soup = BeautifulSoup(datas['data']['html'], 'lxml')
         for card in soup.select('body > div'):
-            item = NewItem()
-            item['top'] = card.select("span.top-card-order-text")[0].get_text()
-            yield scrapy.Request(card.select('div.top-card-middle > a')[0].get('href'), self.parse_detail,
-                                 meta={'item': item})
+            yield scrapy.Request(card.select('a')[0].get('href'), self.parse_detail)
         next_url = datas['data']['next']
         if next_url:
             yield scrapy.Request(next_url)
 
     def parse_detail(self, response):
         print(response.url)
-        item = response.meta['item']
+        item = SimulationItem()
         item['id'] = response.url.split('/')[-1]
         item['name'] = response.xpath(
             '//*[@id="js-nav-sidebar-main"]/div[1]/div/div/section[1]/div[1]/div[2]/div[1]/h1/text()').extract_first().strip()

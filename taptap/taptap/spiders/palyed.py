@@ -4,11 +4,12 @@ import json
 from taptap.items import PlayedItem
 from bs4 import BeautifulSoup
 
+
 # 热玩榜
 class PlayedSpider(scrapy.Spider):
     name = 'played'
     allowed_domains = ['www.taptap.com']
-    start_urls = ['https://www.taptap.com/ajax/top/new?played=0&page=1']
+    start_urls = ['https://www.taptap.com/ajax/top/played?total=0&page=1']
 
     def parse(self, response):
         print(response.url)
@@ -42,4 +43,16 @@ class PlayedSpider(scrapy.Spider):
         item['tags'] = ','.join(tags)
         item['category'] = \
             response.xpath('//*[@id="js-nav-sidebar-main"]/section[1]/div/div/ol/li[3]/a/text()').extract_first()
+        flag = response.css(
+            '#js-nav-sidebar-main > div.container.app-main-container > div > div > section.app-show-main.taptap-page-main > div.show-main-header > div.main-header-text > div.header-text-download > div.text-download-text p > span::text') \
+            .extract()
+        if len(flag) == 2:
+            item['install_num'] = flag[0].split(' ')[0]
+            item['follow_num'] = flag[1].split(' ')[0]
+        elif len(flag) == 1:
+            item['install_num'] = 0
+            item['follow_num'] = flag[0].split(' ')[0]
+        else:
+            item['install_num'] = 0
+            item['follow_num'] = 0
         yield item
